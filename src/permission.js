@@ -3,7 +3,7 @@ import store from '@/store'
 import { formatRoutes, registerRoutes } from '@/utils/router-util'
 
 // 定义路由白名单，不需要token即可访问的路径
-const whiteList = ['/login']
+const whiteList = ['/login', '/sso/login', '/sso/auth', '/sso/callback']
 
 // 前置守卫
 router.beforeEach(async (to, from, next) => {
@@ -35,10 +35,12 @@ router.beforeEach(async (to, from, next) => {
     // 有token，检查并注册路由
     if (!hasRoutesRegistered(router)) {
       try {
+        console.log('权限守卫: 开始生成和注册动态路由')
         // 声明变量asyncRoutes存储异步生成的路由
         const asyncRoutes = await store.dispatch('router/generateRoutes')
         const accessedRoutes = formatRoutes(asyncRoutes)
         registerRoutes(router, accessedRoutes)
+        console.log('权限守卫: 动态路由注册完成，重新跳转')
         // 使用replace避免重定向循环
         next({ ...to, replace: true })
       } catch (error) {
@@ -47,6 +49,8 @@ router.beforeEach(async (to, from, next) => {
         next({ path: '/login', replace: true })
       }
     } else {
+      // 已经注册了动态路由，直接放行
+      console.log('权限守卫: 路由已注册，直接放行')
       next()
     }
   } else {
@@ -73,7 +77,6 @@ router.afterEach((to, from) => {
  */
 function hasRoutesRegistered(router) {
   const routes = router.getRoutes()
-  // 判断是否存在除了基础路由外的其他路由
-  // 基础路由只有login路由，所以总路由数大于1表示已经注册了动态路由
-  return routes.length > 1
+  // 检查是否已经注册了根路径路由（首页），这是动态路由的标识
+  return routes.some(route => route.path === '/')
 }

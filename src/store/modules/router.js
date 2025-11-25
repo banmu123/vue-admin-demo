@@ -36,6 +36,24 @@ const actions = {
           }
         },
         {
+          path: '/sso',
+          name: 'sso',
+          meta: {
+            title: 'SSO单点登录',
+            icon: 'el-icon-link'
+          },
+          children: [
+            {
+              path: '/sso/login',
+              name: 'ssoLogin',
+              meta: {
+                title: 'SSO登录演示',
+                icon: 'el-icon-user'
+              }
+            }
+          ]
+        },
+        {
           // 添加iframe嵌入示例 - 使用维基百科（允许iframe嵌入）
           path: '/external',
           name: '外部链接',

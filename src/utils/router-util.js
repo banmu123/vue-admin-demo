@@ -8,6 +8,11 @@ const componentMap = {
   '': () => import('@/view/home/index.vue'), // 首页特殊处理，空字符串对应根路径
   'home': () => import('@/view/home/index.vue'),
   
+  // SSO单点登录相关
+  'sso/login': () => import('@/view/sso/login.vue'),
+  'sso/auth': () => import('@/view/sso/auth.vue'),
+  'sso/callback': () => import('@/view/sso/callback.vue'),
+  
   // 系统管理相关 - 一级路径
   'system': () => import('@/view/system/settings.vue'),
   
