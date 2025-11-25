@@ -109,12 +109,31 @@ export default {
   methods: {
     // 初始化标签
     initTags() {
+      // 创建首页标签
       const defaultTag = {
         path: '/',
         title: '首页',
         name: this.$route.name || 'home'
       }
-      this.tags.push(defaultTag)
+      
+      // 清空现有标签
+      this.tags = []
+      
+      // 添加当前路由标签
+      const currentTag = {
+        path: this.$route.path,
+        title: this.$route.meta.title || this.$route.name || this.$route.path,
+        name: this.$route.name
+      }
+      
+      // 如果当前不是首页，需要同时添加首页标签和当前标签
+      if (this.$route.path !== '/') {
+        this.tags.push(defaultTag)
+        this.tags.push(currentTag)
+      } else {
+        // 如果是首页，只添加首页标签
+        this.tags.push(defaultTag)
+      }
     },
     
     // 添加标签
