@@ -71,10 +71,12 @@ export default {
                     try {
                         // 调用登录action，等待登录完成
                         await this.$store.dispatch('user/login', this.loginForm)
-                        // 登录成功后再跳转
-                        this.$router.replace({ name: 'home' })
+                        console.log('登录成功，跳转到首页')
+                        // 登录成功后跳转到首页，使用replace避免路由历史记录问题
+                        this.$router.replace('/')
                     } catch (error) {
                         // 登录失败时显示错误信息
+                        console.error('登录失败:', error)
                         this.$message.error(error.message || '登录失败，请重试')
                     }
                 } else {

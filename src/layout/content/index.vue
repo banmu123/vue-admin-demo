@@ -8,14 +8,14 @@
             <!-- 右侧用户信息 -->
             <div class="user-info">
                 <span class="username">管理员</span>
-                <el-dropdown>
+                <el-dropdown @command="handleLogout">
                     <span class="el-dropdown-link">
                         <i class="el-icon-setting"></i>
                     </span>
                     <el-dropdown-menu slot="dropdown">
-                        <el-dropdown-item>个人信息</el-dropdown-item>
-                        <el-dropdown-item>修改密码</el-dropdown-item>
-                        <el-dropdown-item divided>退出登录</el-dropdown-item>
+                        <el-dropdown-item command="个人信息">个人信息</el-dropdown-item>
+                        <el-dropdown-item command="修改密码">修改密码</el-dropdown-item>
+                        <el-dropdown-item command="退出登录">退出登录</el-dropdown-item>
                     </el-dropdown-menu>
                 </el-dropdown>
             </div>
@@ -107,6 +107,16 @@ export default {
     window.removeEventListener('resize', this.updateScrollStatus)
   },
   methods: {
+    // 处理退出登录
+    handleLogout(command) {
+        console.log('退出登录', command)
+    //   清除登录状态
+    if (command === '退出登录') {
+      this.$store.commit('user/RESET_USER_STATE')
+      // 跳转到登录页
+      this.$router.push('/login')
+    }
+    },
     // 初始化标签
     initTags() {
       // 创建首页标签

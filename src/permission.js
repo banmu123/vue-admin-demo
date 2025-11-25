@@ -18,74 +18,44 @@ router.beforeEach(async (to, from, next) => {
   const hasToken = !!store.getters.token
   console.log('权限守卫: token存在?', hasToken)
   
-  // 1. 处理访问主页的情况
-  if (to.path === '/') {
-    if (hasToken) {
-      // 有token，放行
-      console.log('权限守卫: 访问主页，token存在，检查并注册路由')
-      
-      // 检查是否需要注册路由
-      if (!hasRoutesRegistered(router)) {
-        try {
-          // 生成和注册路由
-          await store.dispatch('router/generateRoutes')
-          const accessedRoutes = formatRoutes(store.getters.addRoutes)
-          registerRoutes(router, accessedRoutes)
-          next({ ...to, replace: true })
-        } catch (error) {
-          console.error('生成路由失败:', error)
-          store.commit('user/SET_TOKEN', '')
-          next({ path: '/login' })
-        }
-      } else {
-        next()
-      }
-    } else {
-      // 没有token，检查是否在白名单
-      if (whiteList.includes(to.path)) {
-        console.log('权限守卫: 访问主页，token不存在但在白名单中，放行')
-        next()
-      } else {
-        console.log('权限守卫: 访问主页，token不存在且不在白名单中，跳转到登录页')
-        next({ path: '/login' })
-      }
-    }
-  }
-  // 2. 处理访问登录页的情况
-  else if (to.path === '/login') {
+  // 1. 处理访问登录页的情况
+  if (to.path === '/login') {
     if (hasToken) {
       console.log('权限守卫: 访问登录页，token存在，跳转到主页')
-      next({ path: '/' })
+      next({ path: '/', replace: true })
     } else {
       console.log('权限守卫: 访问登录页，token不存在，放行')
       next()
     }
+    return // 提前返回避免继续执行
   }
-  // 3. 处理其他路径的情况
-  else {
-    if (hasToken) {
-      // 有token，检查并注册路由
-      if (!hasRoutesRegistered(router)) {
-        try {
-          await store.dispatch('router/generateRoutes')
-          const accessedRoutes = formatRoutes(store.getters.addRoutes)
-          registerRoutes(router, accessedRoutes)
-          next({ ...to, replace: true })
-        } catch (error) {
-          console.error('生成路由失败:', error)
-          store.commit('user/SET_TOKEN', '')
-          next({ path: '/login' })
-        }
-      } else {
-        next()
+  
+  // 2. 对于非登录页的访问
+  if (hasToken) {
+    // 有token，检查并注册路由
+    if (!hasRoutesRegistered(router)) {
+      try {
+        // 声明变量asyncRoutes存储异步生成的路由
+        const asyncRoutes = await store.dispatch('router/generateRoutes')
+        const accessedRoutes = formatRoutes(asyncRoutes)
+        registerRoutes(router, accessedRoutes)
+        // 使用replace避免重定向循环
+        next({ ...to, replace: true })
+      } catch (error) {
+        console.error('生成路由失败:', error)
+        store.commit('user/SET_TOKEN', '')
+        next({ path: '/login', replace: true })
       }
     } else {
-      // 没有token，检查是否在白名单
-      if (whiteList.includes(to.path)) {
-        next()
-      } else {
-        next({ path: '/login' })
-      }
+      next()
+    }
+  } else {
+    // 没有token，检查是否在白名单
+    if (whiteList.includes(to.path)) {
+      next()
+    } else {
+      console.log('权限守卫: 无token访问受保护页面，跳转到登录页')
+      next({ path: '/login', replace: true })
     }
   }
 })

@@ -10,7 +10,17 @@ const mutations = {
         } else {
             localStorage.removeItem('token')
         }
+    },
+    // 重置用户状态
+    RESET_USER_STATE: (state) => {
+        state.token = ''
+        // 同时清空localStorage中的token
+        localStorage.removeItem('token')
     }
+}
+const getters = {
+  // 获取token的getter
+  token: (state) => state.token
 }
 const actions = {
     // 模拟登录
@@ -30,5 +40,6 @@ export default {
     namespaced: true,
     state,
     mutations,
-    actions
+    actions,
+    getters
 }
