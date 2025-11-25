@@ -118,8 +118,17 @@ export default {
         console.log('认证成功，生成token:', mockToken)
         
         // 构造回调URL
-        let callbackUrl = this.redirectUri
-        if (!callbackUrl) {
+        // 注意：this.redirectUri是已经编码过的，需要解码使用
+        let callbackUrl = ''
+        if (this.redirectUri) {
+          try {
+            // 尝试解码获取原始的redirectUri
+            callbackUrl = decodeURIComponent(this.redirectUri)
+          } catch (e) {
+            console.error('解码redirectUri失败，使用默认地址:', e)
+            callbackUrl = window.location.origin + '/sso/callback'
+          }
+        } else {
           callbackUrl = window.location.origin + '/sso/callback'
         }
         

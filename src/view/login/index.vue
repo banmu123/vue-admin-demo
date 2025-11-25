@@ -85,9 +85,14 @@ export default {
                         try {
                             // 调用登录action，等待登录完成
                             await this.$store.dispatch('user/login', this.loginForm)
-                            console.log('登录成功，跳转到首页')
-                            // 登录成功后跳转到首页，使用replace避免路由历史记录问题
-                            this.$router.replace('/')
+                            console.log('登录成功，开始处理重定向')
+                            // 登录成功后，获取重定向URL
+                            const redirectUrl = this.$route.query.redirect || '/' 
+                            // 使用nextTick确保Vue响应式系统更新完成后再执行跳转
+                            this.$nextTick(() => {
+                              // 手动触发路由跳转，使用replace避免历史记录中包含登录页
+                              this.$router.replace(redirectUrl)
+                            })
                         } catch (error) {
                             // 登录失败时显示错误信息
                             console.error('登录失败:', error)
@@ -108,10 +113,13 @@ export default {
         },
         // 跳转到SSO登录页面
         goToSsoLogin() {
-            // 保存当前页面URL或首页，用于登录成功后正确跳转
-            const redirectUrl = encodeURIComponent(window.location.href);
+            // 使用$route.query.redirect或当前路径作为重定向目标
+            const redirectTarget = this.$route.query.redirect || this.$route.path;
             // 跳转到SSO登录页面，携带重定向参数
-            window.location.href = `/sso/login?redirect=${redirectUrl}`;
+            this.$router.push({
+                path: '/sso/login',
+                query: { redirect: redirectTarget }
+            });
         }
     }
 }

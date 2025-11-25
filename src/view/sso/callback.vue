@@ -71,15 +71,20 @@ export default {
           }
         }
         
-        // 延迟跳转，让用户看到成功消息
-        setTimeout(() => {
-          // 如果重定向地址是登录页或者空，则跳转到首页
-          if (!redirectUrl || redirectUrl === '/' || redirectUrl.includes('/login')) {
-            this.$router.replace('/')
-          } else {
-            this.$router.replace(redirectUrl)
-          }
-        }, 1000)
+        // 使用$nextTick确保Vue响应式更新完成后再跳转，避免重定向冲突
+        this.$nextTick(() => {
+          // 延迟跳转，让用户看到成功消息
+          setTimeout(() => {
+            // 只在重定向地址为空、为根路径或包含登录相关路径时才跳转到首页
+            // 使用window.location.href替代router跳转，避免重定向冲突警告
+            let targetUrl = '/' // 默认跳转到首页
+            if (redirectUrl && redirectUrl !== '/' && !redirectUrl.includes('/login') && !redirectUrl.includes('/sso/')) {
+              targetUrl = redirectUrl
+            }
+            console.log('SSO认证成功，跳转到:', targetUrl)
+            window.location.href = targetUrl
+          }, 1000)
+        })
         
       } catch (error) {
         console.error('处理SSO token失败:', error)

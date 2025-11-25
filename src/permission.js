@@ -22,7 +22,15 @@ router.beforeEach(async (to, from, next) => {
   if (to.path === '/login') {
     if (hasToken) {
       console.log('权限守卫: 访问登录页，token存在，跳转到主页')
-      next({ path: '/', replace: true })
+      // 如果是从SSO相关页面跳转过来，则避免再次触发重定向
+      if (from.path.includes('/sso/')) {
+        // 使用全局函数在下一个事件循环执行跳转，避免重定向冲突
+        setTimeout(() => {
+          window.location.href = '/'
+        }, 0)
+      } else {
+        next({ path: '/', replace: true })
+      }
     } else {
       console.log('权限守卫: 访问登录页，token不存在，放行')
       next()
@@ -59,7 +67,7 @@ router.beforeEach(async (to, from, next) => {
       next()
     } else {
       console.log('权限守卫: 无token访问受保护页面，跳转到登录页')
-      next({ path: '/login', replace: true })
+      next({ path: '/login', query: { redirect: to.path }, replace: true })
     }
   }
 })
