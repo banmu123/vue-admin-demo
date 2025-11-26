@@ -173,7 +173,7 @@ router.beforeEach((to, from, next) => {
 ```javascript
 // permission.js - 检查动态路由是否已注册
 function hasRoutesRegistered() {
-  // 通过检查是否存在根路径路由来判断动态路由是否已注册
+  // 通过检查是否存在根路径路由来判断动态路由是否已注册,
   const routes = router.options.routes;
   return routes.some(route => route.path === '/');
 }
